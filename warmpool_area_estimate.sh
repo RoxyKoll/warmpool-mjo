@@ -1,5 +1,5 @@
 # This shell script uses CDO, NCO (operator ncwa) and GMT (operator grdvolume) 
-# and displays the the warmpool area for each month for the period 1980–2018.
+# and displays the the warmpool area for each month during Nov–April, 1980–2018.
 for i in $(seq 1900 2018)
 do
         for j in $(seq 7 12)                                                    #Note that here 7-12 months are November–April (shifted)
