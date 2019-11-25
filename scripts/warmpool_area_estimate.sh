@@ -2,7 +2,7 @@
 # and displays the the warmpool area for each month during Nov–April, 1980–2018.
 for i in $(seq 1900 2018)
 do
-        for j in $(seq 7 12)                                                    #Note that here 7-12 months are November–April (shifted)
+        for j in $(seq 7 12)                                                    #Month numbers 7-12 here are November–April (shifted)
         do
         rm sst.nc sst_ncwa.nc
         cdo -s selyear,${i} -selmon,${j} sst_1900_2018_mjo_mon_remap.nc sst.nc  #CDO command to extract each month to sst.nc
