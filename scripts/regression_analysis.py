@@ -15,25 +15,6 @@ import matplotlib as mpl
 import cartopy.crs as ccrs
 import cartopy
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-
-
-
-def detrend(time_series):
-    time_series = time_series
-    y            =    np.squeeze(np.asarray(time_series))
-    if len(y.shape) !=1: 
-        print("ERROR : The input must be 1D array")
-        
-    else:
-        nobs         =    y.shape[0]
-        x            =    np.arange(1,nobs+1)
-        A = np.vstack([x, np.ones(len(x))]).T
-        m, c = np.linalg.lstsq(A, y, rcond=None)[0]
-        qhat         =    m*x+c
-        detrended   =     y - qhat
-           
-    
-    return detrended,m,c
     
 from scipy.stats import norm
 
@@ -111,52 +92,6 @@ def mk_test(x, alpha=0.05):
         trend = 'no trend'
 
     return trend, h, p, z
-
-
-def linear_regress(xx,yy,alpha,opt_detrend,opt_mktest):
-    xx                    =    np.squeeze(np.asarray(xx))
-    yy                    =    np.squeeze(np.asarray(yy))
-
-    if len(yy)!=len(xx):
-        print("ERROR : Length of the arrays mismatch !")
-    else:
-        N                     =         len(xx)
-        if opt_detrend:
-            x,m1,c1               =         detrend(xx)
-            y,m2,c2               =         detrend(yy)
-        else:
-            x=xx*1
-            y=yy*1
-        #print(x,y)
-        corr                  =         np.corrcoef(x,y)[0,1]
-        A = np.vstack([x, np.ones(len(x))]).T
-        m, c = np.linalg.lstsq(A, y,rcond=None)[0]
-        qhat                  =          m*x+c
-        error                 =         (y-qhat)**2
-        var_residuals         =         (1/(N-2))*(np.sum(error))
-        x_er                  =         np.sum((x-np.mean(x))**2)
-        s                     =         var_residuals/x_er
-        standard_error        =         (s)**0.5
-        t_score               =         np.absolute(m)/standard_error
-        # Student t-distribution Percent Point Function
-        # define probability
-        if opt_mktest:
-            trend, h, p1, z  = mk_test(y, alpha)
-            h1 =h*1.0  
-        else:
-            #p = 0.025
-            df                    =         N-2
-            # retrieve value <= probability
-            t_critical            =         t.ppf(1-alpha/2, df)
-            # confirm with cdf
-            p1                    =        1.- t.cdf(t_score, df)
-            if p1< alpha/2:
-                h1 = 1.0
-            else:
-                h1= 0.0
-                
-    return m,c,p1,corr,h1
-
 
 
 def linear_regress_scipy(xx,yy,alpha,opt_detrend,opt_mktest):
@@ -306,38 +241,7 @@ class reg_plot():
         return regress_map,cor_map,significant_map    
 
     
-    def draw_regression(self,vmin,vmax,inc,titlestr,axiom,cmap='RdBu',hatch='/',draw_par=1):
-        regress_map,cor_map,significant_map= self.regression_map_making()
-        ds1           =     xr.open_dataset(self.data_name)
-        lon           =     ds1.lon
-        lat           =     ds1.lat
-
-        # m = Basemap(projection='ortho',lat_0=0,lon_0=-180,resolution='l')
-        #m = Basemap(projection='moll',lon_0=0,lat_0=0,resolution='l')  
-
-        m              = Basemap(projection='mill',lat_ts=10,llcrnrlon=lon.min(),urcrnrlon =lon.max(),llcrnrlat=lat.min(),urcrnrlat=lat.max(),resolution='c',ax=axiom)
-        lon2, lat2     =    np.meshgrid(lon,lat)
-        x, y           =    m(lon2, lat2)
-
-        #fig = plt.figure()
-        #m.fillcontinents(color='gray',lake_color='gray')
-
-        m.drawcoastlines()
-        if draw_par:
-            m.drawparallels(np.arange(-80.,81.,20.),labels=[1,0,0,0])
-            m.drawmeridians(np.arange(-180.,181.,60.),labels=[0,0,0,1])
-
-        #m.drawparallels(np.arange(-90.,90.,30.),labels=[1,0,0,0])
-        #m.drawmeridians(np.arange(-180.,180.,60.),labels=[0,0,0,1])
-        # m.drawmapboundary(fill_color='white')
-        norm      =    mpl.colors.Normalize(vmin,vmax)
-        v         =    np.arange(vmin,vmax+inc,inc)
-        cs        =    m.contourf(x,y,regress_map[0,:,:],v,norm=norm,extend='both',cmap=plt.cm.get_cmap(cmap))
-        #levels=[0,1]
-        zm = np.ma.masked_equal(significant_map[0,:,:], 0)
-        m.contourf(x,y,zm, hatches=hatch,alpha=0.)
-        cbar0     = plt.colorbar(cs,ax=axiom,orientation='horizontal',fraction=0.05)
-        axiom.set_title(titlestr)
+    
 
     def draw_regression_cartopy(self,vmin,vmax,inc,titlestr,s1,s2,sub_no,cmap='RdBu',hatch='/',draw_par=1):
         regress_map,cor_map,significant_map= self.regression_map_making()
@@ -364,38 +268,6 @@ class reg_plot():
 
         cbar =  plt.colorbar(cs, fraction=0.05, orientation='horizontal',extend='both')
         axiom.set_title(titlestr)
-
-
-    
-    
-    def draw_correlation(self,significant_value,vmin,vmax,inc,titlestr,axiom,cmap='RdBu',hatch='/',draw_par=1):
-        regress_map,cor_map,significant_map=self.regression_map_making()
-        ds1=xr.open_dataset(self.data_name)
-        lon=ds1.lon
-        lat=ds1.lat
-        # m = Basemap(projection='ortho',lat_0=0,lon_0=-180,resolution='l')
-        #m = Basemap(projection='moll',lon_0=0,lat_0=0,resolution='l')  
-        m = Basemap(projection='mill',lat_ts=10,llcrnrlon=lon.min(),         urcrnrlon =    lon.max(),llcrnrlat=lat.min(),urcrnrlat=lat.max(), resolution='c',ax=axiom)
-        lon2, lat2 = np.meshgrid(lon,lat)
-        x, y       = m(lon2, lat2)
-        fig        = plt.figure(figsize=(10,7))
-        #fig = plt.figure()
-        #m.fillcontinents(color='gray',lake_color='gray')
-        m.drawcoastlines()
-        if draw_par:
-            m.drawparallels(np.arange(-80.,81.,20.),labels=[1,0,0,0])
-            m.drawmeridians(np.arange(-180.,181.,60.),labels=[0,0,0,1])
-        #m.drawparallels(np.arange(-90.,90.,30.),labels=[1,0,0,0])
-        #m.drawmeridians(np.arange(-180.,180.,60.),labels=[0,0,0,1])
-        # m.drawmapboundary(fill_color='white')
-        norm = mpl.colors.Normalize(vmin,vmax)
-        v=np.arange(vmin,vmax+inc,inc)
-        cs = m.contourf(x,y,cor_map[0,:,:],v,norm=norm,extend='both',cmap=plt.cm.get_cmap(cmap))
-        #levels=[0,1]
-        #m.contourf(x,y,sig[0,:,:], 2, hatches=["", "/"],alpha=0)
-        m.contour(x, y, cor_map[0,:,:], levels=[-1*significant_value,significant_value], linewidths=0.5, colors='black', antialiased=True)
-        cbar0 = plt.colorbar(cs,ax=axiom,orientation='horizontal',fraction=0.05)
-        axiom.set_title(titlestr) 
        
         
     def draw_correlation_cartopy(self,significant_value,vmin,vmax,inc,titlestr,s1,s2,sub_no,cmap='RdBu',draw_par=1):

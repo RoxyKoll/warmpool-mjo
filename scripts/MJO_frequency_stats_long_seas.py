@@ -2,7 +2,7 @@
 
 import numpy as np
 import scipy as sc
-from numpy import linalg as LA
+
 
 # %matplotlib notebook
 
@@ -39,7 +39,7 @@ def theta1_winter(theta1,amp,year,ny,start_index,nod):
     return the1_wintr,amp_wintr
 
 
-#%% Finding the phase occurances in each year
+#%% Selecting the MJO segments
 
 
 
@@ -68,7 +68,7 @@ def select_seg(a):
     return new_arr,seg
 
 
-#%% Finding the phase occurances in each year NOV-APR
+#%% Finding the phase occurances for each year NOV-APR  (considerung MJO segments)
 
 def phase_occurances(the1_obj,amp_obj,thers_amp):
     to_dur = np.zeros((len(the1_obj),8))
@@ -97,6 +97,7 @@ def phase_occurances(the1_obj,amp_obj,thers_amp):
     return    ano_to_dur,ano_mean_amp        
                      
 
+#%% Finding the phase occurances for each year NOV-APR (considering all MJO active days)
     
 def phase_occurances2(the1_obj,amp_obj,thers_amp):
     to_dur = np.zeros((the1_obj.size,8))
@@ -123,76 +124,4 @@ def phase_occurances2(the1_obj,amp_obj,thers_amp):
     
     
 
-    #%% EOF analysis of the phase occurance data 
-
-
-
-
-def eof_wrap(matrix):
-    ny            =         matrix.shape[0]
-    mat           =         np.matrix(matrix)
-    mean          =         mat.mean(0)
-    std           =         mat.std(0)
-    one           =         np.matrix(np.ones(ny,float))
-    mean_matrix   =         one.T*mean
-    std_matrix    =         one.T*std
-    anomaly11     =         mat-mean_matrix
-    anomaly22     =         anomaly11/std
-    cov_matrix    =         anomaly11.T*anomaly11
-    D,V           =         LA.eig(cov_matrix)
-    varex         =         D/np.sum(D)
-    max_eig_ind   =         np.where(varex==np.max(varex))
-    sec_eig_ind   =         np.where(varex==np.max(varex[varex<np.max(varex)]))
-    third_eig_ind =         np.where(varex==np.max(varex[varex<varex[sec_eig_ind]]))
-    fourth_eig_ind=         np.where(varex==np.max(varex[varex<varex[third_eig_ind]]))
-    EOF1          =         V[:,max_eig_ind]
-    EOF2          =         V[:,sec_eig_ind]
-    EOF3          =         V[:,third_eig_ind]
-    EOF4          =         V[:,fourth_eig_ind]
-    PC1           =         anomaly11*np.squeeze(EOF1).T
-    PC2           =         anomaly11*np.squeeze(EOF2).T
-    PC3           =         anomaly11*np.squeeze(EOF3).T
-    PC4           =         anomaly11*np.squeeze(EOF4).T
-    reconstructed =         PC1*(np.squeeze(EOF1))+PC2*(np.squeeze(EOF2))+PC3*(np.squeeze(EOF3))
-    return anomaly11,D,V,cov_matrix,EOF1,EOF2,EOF3,EOF4,varex,PC1,PC2,PC3,PC4,reconstructed
-
-#%% testing significance of EOFs
-
-def test_significance(D,ny):
-    DD          =         np.sort(D)
-    varex       =         DD/np.sum(DD)
-    significant =         np.zeros(DD.size,float)  
-    error =         np.zeros(DD.size,float)  
-    k           =         0
-    for i in range (DD.size):
-         D_new  =         abs(DD-DD[i])
-         error[i]  =         DD[i]*(2/ny)**0.5
-         k      =         k+1
-         if (sum(D_new>error[i])==DD.size-1):
-             significant[i]=1
-         else:
-             significant[i]=0
-        
-    if significant[DD.size-1]==1:
-        print("EOF1 is significant and pressenting variance %f" %varex[DD.size-1])
-    else:
-        print("EOF1 is not significant and pressenting variance %f" %varex[DD.size-1])
-
-    if significant[DD.size-2]==1:
-        print("EOF2 is significant and presenting variance %f" %varex[DD.size-2])
-    else:
-        print("EOF2 is not significant and pressenting variance %f" %varex[DD.size-2])
-    
-    if significant[DD.size-3]==1:
-        print("EOF3 is significant and pressenting variance %f" %varex[DD.size-3])
-    else:
-        print("EOF3 is not significant and pressenting variance %f" %varex[DD.size-3])
-    
-    if significant[DD.size-4]==1:
-        print("EOF4 is significant and pressenting variance %f" %varex[DD.size-4])
-    else:
-        print("EOF4 is not significant and pressenting variance %f" %varex[DD.size-4])
-
-    
-    
-    return k,DD,significant,error,varex      
+ 
