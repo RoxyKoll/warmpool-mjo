@@ -1,4 +1,4 @@
-## File descriptions:
+## Description:
 * Average_phase_duration_88_events_adding : Average residence time of MJO in each of the RMM phase locations (1981-2018).
 * filter_olr_MJO_88.pdf : MJO propagations in filtered NOAA OLR 
 * filter_precip_CMAP_MJO_88.pdf : MJO propagations in filtered CMAP precipitation.

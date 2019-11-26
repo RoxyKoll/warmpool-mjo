@@ -1,4 +1,4 @@
-## warmpool-mjo
+## Description:
 * MJO_123_567_pdfs_88.ipynb: This notebook file contains different statistics regarding the lifecycle of MJO.
 * MJO_frequency_stats_long_seas.py: Python functions for calculating phase occurrences of MJO.
 * nclcmaps.py: colormap
