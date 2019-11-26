@@ -1,8 +1,8 @@
-# warmpool-mjo
-MJO events and the code for estimating the phase duration and warm pool area as in Roxy et al. 2019, Nature, "Twofold expansion of Indo-Pacific warm pool warps MJO lifecycle".
-Descriptions:
-* MJO_events directory contains list of MJO events from 1981-2018 (Nov-Apr), MJO phase durations and Hovmöller diagrams of NOAA OLR and CMAP precipitation filtered filed. 
-* scripts diretory contains the pyhton,ncl and shell scripts used in the study.
-
-
+# File description:
+* Average_phase_duration_88_events_adding : Average phase duration in each of the RMM phase locations from 1981-2018.
+* filter_olr_MJO_88.pdf : MJO propagations in filtered NOAA OLR 
+* filter_precip_CMAP_MJO_88.pdf : MJO propagations in filtered CMAP precipitation.
+* MJO_88_events_dates.csv : MJO events starting date,ending date, mean amplitude and total durations.
+* MJO_event_all_88.nc : same as previous in netCDF format.
+* MJO_events_1981-2018.csv : MJO starting date , ending date, durations in each of the RMM phase locations. 
 
