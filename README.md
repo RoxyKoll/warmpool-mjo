@@ -6,8 +6,6 @@ MJO events and the code for estimating the phase duration and warm pool area as 
 
 
 Link to the original study: https://www.nature.com/articles/s41586-019-1764-4
-<<<<<<< HEAD
-Thanks.
->>>>>>> de35562be6bce94ff4dba8ed289b83807c700e69
-=======
->>>>>>> 1105096ec34884ccdd396ed94abda05571eb637b
+
+
+
